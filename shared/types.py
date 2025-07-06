@@ -18,3 +18,5 @@ class HealthBotState(TypedDict):
     _info_mode: Optional[str]  # "medicine", "hospital", or None
     _search_topic: Optional[str]
     _search_results: Optional[List[dict]]
+    session_id: Optional[str]  # 🆕 For multi-session support
+    memory_context: Optional[List[str]]  # 🆕 For conversation memory

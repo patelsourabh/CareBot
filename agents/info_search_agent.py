@@ -1,10 +1,9 @@
-from langgraph.graph import StateGraph, END
+from langgraph.graph import StateGraph, END, add_messages
 from langchain_openai import ChatOpenAI
-from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_tavily import TavilySearch
 from langchain_core.messages import HumanMessage
 from shared.types import HealthBotState
 from typing import TypedDict, Annotated
-from langgraph.graph import add_messages
 from dotenv import load_dotenv
 import os
 
@@ -12,7 +11,8 @@ load_dotenv()
 
 # LLM
 llm = ChatOpenAI(model="gpt-4o", temperature=0.3)
-search_tool = TavilySearchResults(max_results=1)
+search_tool = TavilySearch(k=1)
+
 
 class InfoState(TypedDict):
     messages: Annotated[list, add_messages]
@@ -26,17 +26,18 @@ class InfoState(TypedDict):
 # ==== Node: LLM decides if search needed and what to search ====
 
 def llm_node(state: HealthBotState) -> HealthBotState:
-    user_query = state["messages"][-1].content.lower()
+    # Make sure we are using actual user message (not appended LLM responses)
+    user_messages = [m for m in state["messages"] if m.type == "human"]
+    user_query = user_messages[-1].content.lower() if user_messages else ""
 
     hospital_keywords = ["hospital", "clinic", "doctor", "emergency", "medical care", "emergency medical care"]
-    medicine_keywords = ["medicine", "painkiller", "drug", "dosage", "heart attack medicine", "aspirin"]
+    medicine_keywords = ["medicine", "painkiller", "drug", "dosage", "heart attack medicine", "aspirin", "suggest medicine"]
 
     location = state.get('location', 'your city')
 
-    # Check for medicine explicitly first
     if any(k in user_query for k in medicine_keywords):
         state["_info_mode"] = "medicine"
-        state["_search_topic"] = "medicine for heart attack"  # hardcoded override for clarity
+        state["_search_topic"] = f"medicine for {', '.join(state.get('symptoms', [])) or 'heart-related symptoms'}"
         return state
 
     if any(k in user_query for k in hospital_keywords):
@@ -74,7 +75,15 @@ def summarizer_node(state: HealthBotState) -> HealthBotState:
     if not topic or not results:
         return state
 
-    urls_content = "\n".join([f"{r['title']}: {r['url']}" for r in results])
+    # Safely extract titles and URLs
+    urls_content = ""
+    if isinstance(results, list):
+        if all(isinstance(r, dict) and "title" in r and "url" in r for r in results):
+            urls_content = "\n".join([f"{r['title']}: {r['url']}" for r in results])
+        else:
+            urls_content = "\n".join(results)  # fallback: plain strings
+    elif isinstance(results, str):
+        urls_content = results
 
     prompt = f"""You are a health assistant. Summarize this info for the query: '{topic}'.
     Summarize useful parts only, no links or ads. Here's the source content:\n\n{urls_content}"""
@@ -87,6 +96,7 @@ def summarizer_node(state: HealthBotState) -> HealthBotState:
         state["response_message"] += f"\n\n🏥 Hospital Info:\n{result.content}\n⚠️ Visit hospitals only after checking with a doctor."
 
     return state
+
 
 # ==== Graph ====
 

@@ -2,7 +2,7 @@ from langgraph.graph import StateGraph, END
 from langchain_core.messages import HumanMessage
 from shared.types import HealthBotState
 from agents.symptom_agent import symptom_extractor_agent
-from agents.sqlite_db import db_handler_node
+from db.postgres_adapter import db_handler_node
 from agents.supervisor_agent import supervisor_node
 
 
