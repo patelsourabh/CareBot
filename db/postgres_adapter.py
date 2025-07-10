@@ -33,7 +33,7 @@ class ConversationLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, index=True)
-    message = Column(Text)             # raw user query
+    message = Column(Text)             # user query
     intents = Column(Text)             # classified intent
     results = Column(Text)             # output summary/agent result
     timestamp = Column(DateTime, default=datetime.utcnow)
@@ -58,7 +58,7 @@ def log_symptom_interaction(state: HealthBotState):
     session.close()
 
 def get_relevant_memory_chunks(user_id: str, latest_question: str) -> list:
-    # Dummy logic: In real use, replace with vector similarity search or keyword match
+    
     return [
         f"Past message by {user_id} related to '{latest_question}'",
         f"Memory: You once asked about something similar."
@@ -89,7 +89,7 @@ def get_recent_messages(user_id: str, limit: int = 5) -> List[str]:
     session.close()
     return [log.query for log in logs[::-1]]  # Return in forward order
 
-# For Streamlit UI (safe, does not affect LangGraph)
+# For Streamlit UI 
 def get_message_history_ui(user_id: str, limit: int = 10) -> List[dict]:
     session = SessionLocal()
     logs = session.query(SymptomLog).filter(

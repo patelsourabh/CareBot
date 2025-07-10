@@ -33,7 +33,7 @@ def emergency_alert_agent(state: HealthBotState) -> HealthBotState:
         prev_score = prev_score if isinstance(prev_score, (int, float)) else 0.0
         state["risk_score"] = max(prev_score, 0.9)
 
-        state["emergency_flags"] = [f"⚠️ Frequent symptom: {', '.join(freq_risk_symptoms)}"]
+        state["emergency_flags"] = [f"Frequent symptom: {', '.join(freq_risk_symptoms)}"]
 
     system_msg = (
         "You are a medical emergency classifier. Respond ONLY with 'EMERGENCY' "
@@ -46,12 +46,12 @@ def emergency_alert_agent(state: HealthBotState) -> HealthBotState:
     llm_decision = llm_response.content.strip().lower()
     if "emergency" in llm_decision:
         emergency_detected = True
-        state.setdefault("emergency_flags", []).append("🚨 Emergency detected by AI")
+        state.setdefault("emergency_flags", []).append("Emergency detected by AI")
 
     if emergency_detected:
         try:
             alert_msg = (
-                f"🚨 Emergency Alert for user {state['user_id']}:\n"
+                f"Emergency Alert for user {state['user_id']}:\n"
                 f"User says: \"{user_prompt}\"\n"
                 f"Symptoms: {', '.join(symptoms)}\n"
                 f"Frequent Symptoms: {', '.join(freq_risk_symptoms)}"
@@ -62,10 +62,10 @@ def emergency_alert_agent(state: HealthBotState) -> HealthBotState:
                 body=alert_msg
             )
             state["alert_sent"] = True
-            state["emergency_flags"].append("✅ WhatsApp alert sent.")
+            state["emergency_flags"].append(" WhatsApp message sent.")
         except Exception as e:
             state["alert_sent"] = False
-            state["emergency_flags"].append(f"❌ Alert failed: {e}")
+            state["emergency_flags"].append(f"Alert failed: {e}")
     else:
         state["alert_sent"] = False
 

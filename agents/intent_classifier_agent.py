@@ -11,7 +11,7 @@ def intent_classifier_agent(state: dict) -> dict:
     messages = state.get("messages", [])
     last_msg = ""
 
-    # Safely extract latest user message content
+    
     for msg in reversed(messages):
         if isinstance(msg, HumanMessage):
             last_msg = msg.content
@@ -44,7 +44,7 @@ Focus on the semantic meaning of the query rather than specific keywords. If the
         print(f"[Intent Classifier Error] {e}")
         state["intents"] = ["fallback"]
 
-    print("🧠 [IntentClassifier] Final intents:", state.get("intents"))
+    print("**[IntentClassifier] Final intents:", state.get("intents"))
 
 
     return state

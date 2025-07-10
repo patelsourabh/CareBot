@@ -16,7 +16,6 @@ class InfoState(TypedDict):
     _search_topic: str
     _search_results: list
 
-# ==== Node: Extract user query for search ====
 
 def search_topic_node(state: HealthBotState) -> HealthBotState:
     user_messages = [m for m in state["messages"] if m.type == "human"]
@@ -25,7 +24,7 @@ def search_topic_node(state: HealthBotState) -> HealthBotState:
     state["_search_topic"] = user_query.strip() or None
     return state
 
-# ==== Node: Tavily Search ====
+# tavily search
 
 def search_node(state: HealthBotState) -> HealthBotState:
     topic = state.get("_search_topic")
@@ -34,36 +33,36 @@ def search_node(state: HealthBotState) -> HealthBotState:
 
     try:
         result = search_tool.invoke(topic)
-        # ✅ Extract results as list
+        
         if isinstance(result, dict) and "results" in result:
             state["_search_results"] = result["results"]
         else:
-            state["_search_results"] = [result]  # Fallback as single item list
+            state["_search_results"] = [result]  # Fallback 
     except Exception as e:
         state["_search_results"] = [{"title": "Search Error", "content": str(e)}]
 
     return state
 
 
-# ==== Node: Pass content to summarizer agent ====
+
 
 def summarizer_node(state: HealthBotState) -> HealthBotState:
-    print("🚀 Entered info_search summarizer_node")
+    print("** Entered info_search summarizer_node")
     
     topic = state.get("_search_topic")
     raw = state.get("_search_results")
 
-    outputs = dict(state.get("agent_outputs", {}))  # ✅ Safe copy
+    outputs = dict(state.get("agent_outputs", {})) 
 
     if not topic:
-        print("⚠️ No search topic found")
-        outputs["info_search"] = "⚠️ No topic provided for information search."
+        print("** No search topic found")
+        outputs["info_search"] = "**No topic provided for information search."
         state["agent_outputs"] = outputs
         return state
 
     if not raw:
-        print("⚠️ No search results found")
-        outputs["info_search"] = f"⚠️ No results found for: '{topic}'."
+        print("** No search results found")
+        outputs["info_search"] = f"** No results found for: '{topic}'."
         state["agent_outputs"] = outputs
         return state
 
@@ -71,8 +70,8 @@ def summarizer_node(state: HealthBotState) -> HealthBotState:
     contents = [r["content"].strip() for r in items if "content" in r]
 
     if not contents:
-        print("⚠️ Search results are empty or missing content field.")
-        outputs["info_search"] = f"⚠️ Found search topic '{topic}', but no content to summarize."
+        print("** Search results are empty or missing content field.")
+        outputs["info_search"] = f"** Found search topic '{topic}', but no content to summarize."
         state["agent_outputs"] = outputs
         return state
 
@@ -80,13 +79,13 @@ def summarizer_node(state: HealthBotState) -> HealthBotState:
     outputs["info_search"] = combined
     state["agent_outputs"] = outputs
 
-    print("✅ [info_search_agent] stored info_search:", combined[:200])
+    print("** [info_search_agent] stored info_search:", combined[:200])
     return state
 
 
 
 
-# ==== Graph ====
+#graph
 
 info_graph = StateGraph(HealthBotState)
 info_graph.add_node("search_topic_node", search_topic_node)

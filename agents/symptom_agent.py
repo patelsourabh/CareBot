@@ -10,7 +10,7 @@ from langchain_core.messages import AIMessage
 load_dotenv()
 llm = ChatOpenAI(model="gpt-4o")
 
-# Recall keywords for general queries
+# Recall keywords
 RECALL_KEYWORDS = [
     "what did i say",
     "what did i ask",
@@ -43,7 +43,7 @@ def symptom_extractor_agent(state: HealthBotState) -> HealthBotState:
             state["messages"].append(AIMessage(content=summary))
             return state
 
-    # Build memory prompt
+    # memory prompt
     past_queries = get_recent_messages(user_id, limit=5)
     memory_prompt = "\n".join(f"- {q}" for q in past_queries)
 
@@ -104,11 +104,11 @@ Respond ONLY in JSON format:
         "response_message",
         "I'm here to help. What can I do for you today?"
     )
-    # Add only the latest user + LLM exchange
+    
     new_ai_msg = result if isinstance(result, AIMessage) else AIMessage(content=result.content)
 
 # Retain only last 5 messages max
     state["messages"].append(new_ai_msg)
-    print("📝 Full message log now:", [(m.type, m.content[:30]) for m in state["messages"]])
+    print("# Full message log now:", [(m.type, m.content[:30]) for m in state["messages"]])
 
     return state

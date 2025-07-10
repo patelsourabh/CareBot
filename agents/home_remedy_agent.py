@@ -14,7 +14,7 @@ def home_remedy_agent(state: HealthBotState) -> HealthBotState:
     symptoms = state.get("symptoms", [])
     response_lines = []
 
-    # Remedy generation
+    # Remedy home
     remedy_system_prompt = (
         "You are a cautious medical assistant. Your task is to:\n"
         "1. Identify 1–2 suspected Disease(s) based on the user's symptoms.\n"
@@ -32,7 +32,7 @@ def home_remedy_agent(state: HealthBotState) -> HealthBotState:
     remedies_text = remedy_response.content.strip()
     response_lines.append(remedies_text)
 
-    # Parse suspected diseases
+    
     suspected_diseases = []
     lines = remedies_text.splitlines()
     in_disease_section = False
@@ -54,8 +54,8 @@ def home_remedy_agent(state: HealthBotState) -> HealthBotState:
     state["agent_outputs"] = outputs
 
 
-    #if not state.get("timestamp"):
-     #   state["timestamp"] = datetime.utcnow().isoformat()
+    # if not state.get("timestamp"):
+    #     state["timestamp"] = datetime.utcnow().isoformat()
 
     log_symptom_interaction(state)
     return state

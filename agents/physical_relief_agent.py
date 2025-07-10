@@ -3,8 +3,8 @@ from shared.types import HealthBotState
 
 def physical_relief_agent(state: HealthBotState) -> HealthBotState:
     stretches = {
-        "back pain": "🧘 Try knee-to-chest or child's pose stretch.",
-        "neck pain": "🌀 Do gentle neck tilts and shoulder rolls.",
+        "back pain": "# Try knee-to-chest or child's pose stretch.",
+        "neck pain": "# Do gentle neck tilts and shoulder rolls.",
     }
 
     safe_exercises = []
@@ -13,13 +13,13 @@ def physical_relief_agent(state: HealthBotState) -> HealthBotState:
             safe_exercises.append(f"{symptom}: {stretches[symptom.lower()]}")
 
     if safe_exercises:
-        message = "🏃 Physical Relief:\n" + "\n".join(safe_exercises)
+        message = "# Physical Relief:\n" + "\n".join(safe_exercises)
     else:
-        message = "🏃 No safe physical activities suggested for the symptoms."
+        message = "# No safe physical activities suggested for the symptoms."
 
     state["response_message"] = state.get("response_message", "") + f"\n\n{message}"
 
-     # ▶️ write physical_relief output into results
+     #  physical_relief output into results
     outputs = dict(state.get("agent_outputs", {}))
     outputs["physical_relief"] = message
     state["agent_outputs"] = outputs

@@ -15,7 +15,7 @@ model = whisper.load_model("base")  # Load once globally
 
 st.set_page_config(page_title="HealthBot AI", page_icon="🩺", layout="wide")
 
-# --- Inject Custom CSS ---
+#  Inject Custom CSS 
 st.markdown("""
     <style>
     html, body, [class*="css"] {
@@ -52,7 +52,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- Session state init ---
+#  Session state init 
 defaults = {
     "user_id": "",
     "location": "",
@@ -65,40 +65,40 @@ for key, default in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = default
 
-# --- STT with Google Speech Recognition ---
+#  STT with Google Speech Recognition 
 def record_and_transcribe():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
-        st.toast("🎧 Listening...", icon="🎙️")
+        st.toast("# Listening...", icon="🎙️")
         audio = recognizer.listen(source, timeout=10)
         try:
             text = recognizer.recognize_google(audio)
-            st.toast(f"✅ You said: {text}")
+            st.toast(f" You said: {text}")
             return text
         except sr.UnknownValueError:
-            st.error("❌ Could not understand audio.")
+            st.error(" Could not understand audio.")
         except sr.RequestError as e:
-            st.error(f"⚠️ STT API error: {e}")
+            st.error(f" STT API error: {e}")
     return ""
 
-# --- TTS ---
+#  TTS 
 def speak_text(text):
     tts = gTTS(text=text, lang='en')
     with NamedTemporaryFile(delete=False, suffix=".mp3") as tmpfile:
         tts.save(tmpfile.name)
         st.session_state.last_audio_file = tmpfile.name
 
-# --- Chat History ---
+#  Chat History 
 def fetch_user_history(user_id):
     try:
         res = requests.get(f"http://localhost:8000/history/{user_id}")
         if res.status_code == 200:
             return res.json()["history"]
     except Exception as e:
-        st.error(f"❌ Error fetching history: {e}")
+        st.error(f" Error fetching history: {e}")
     return []
 
-# --- Real-time voice loop ---
+#  Real-time voice loop 
 def realtime_voice_loop():
     duration = 10
     samplerate = 16000
@@ -128,28 +128,28 @@ def realtime_voice_loop():
                         st.session_state.messages.append(("HealthBot", reply))
                         speak_text(reply)
                     else:
-                        st.session_state.messages.append(("HealthBot", "⚠️ No reply."))
+                        st.session_state.messages.append(("HealthBot", " No reply."))
                 except Exception as e:
-                    st.session_state.messages.append(("HealthBot", f"❌ Error: {e}"))
+                    st.session_state.messages.append(("HealthBot", f" Error: {e}"))
 
         except Exception as e:
-            st.session_state.messages.append(("System", f"⚠️ Voice Error: {e}"))
+            st.session_state.messages.append(("System", f" Voice Error: {e}"))
         time.sleep(5)
 
-# --- Sidebar UI ---
+# Sidebar UI
 with st.sidebar:
-    st.markdown("## 🧑 User Setup")
-    st.session_state.user_id = st.text_input("🆔 User ID", value=st.session_state.user_id)
-    st.session_state.location = st.text_input("📍 Location", value=st.session_state.location)
-    if st.button("🚀 Start Chat"):
+    st.markdown("##  User Setup")
+    st.session_state.user_id = st.text_input("User ID", value=st.session_state.user_id)
+    st.session_state.location = st.text_input(" Location", value=st.session_state.location)
+    if st.button("Start Chat"):
         st.session_state.chat_started = True
         st.session_state.voice_thread_started = False
 
-# --- Main Title ---
-st.markdown("## 🩺 HealthBot AI Assistant")
+# Main Title
+st.markdown("##  HealthBot AI Assistant")
 st.markdown("Talk with your smart **HealthBot** using **voice or text**.\nGet help with symptoms, suggestions, and remedies.")
 
-# --- Chat Section ---
+# Chat Section 
 if st.session_state.chat_started:
     if not st.session_state.voice_thread_started:
         threading.Thread(target=realtime_voice_loop, daemon=True).start()
@@ -157,9 +157,9 @@ if st.session_state.chat_started:
 
     col1, col2 = st.columns([4, 1])
     with col1:
-        user_input = st.text_input("💬 Type your message", key="text_input")
+        user_input = st.text_input(" Type your message", key="text_input")
     with col2:
-        if st.button("🎙️ Speak Once"):
+        if st.button(" Speak Once"):
             user_input = record_and_transcribe()
 
     if user_input:
@@ -167,7 +167,7 @@ if st.session_state.chat_started:
         with st.chat_message("user"):
             st.markdown(user_input)
         with st.chat_message("assistant"):
-            with st.spinner("🤖 HealthBot is thinking..."):
+            with st.spinner("# HealthBot is thinking..."):
                 try:
                     res = requests.post("http://localhost:8000/chat", json={
                         "user_id": st.session_state.user_id,
@@ -180,17 +180,17 @@ if st.session_state.chat_started:
                         speak_text(reply)
                         st.markdown(reply)
                     else:
-                        reply = "⚠️ No response received."
+                        reply = " No response received."
                         st.session_state.messages.append(("HealthBot", reply))
                         st.markdown(reply)
                 except Exception as e:
-                    reply = f"❌ Error: {e}"
+                    reply = f" Error: {e}"
                     st.session_state.messages.append(("HealthBot", reply))
                     st.markdown(reply)
 
     # Chat Bubble Display
     st.markdown("----")
-    st.markdown("### 🗨️ Recent Conversation")
+    st.markdown("###  Recent Conversation")
     for sender, msg in reversed(st.session_state.messages[-8:]):
         with st.chat_message("user" if sender == "You" else "assistant" if sender == "HealthBot" else "system"):
             st.markdown(msg)
@@ -199,10 +199,10 @@ if st.session_state.chat_started:
         st.audio(st.session_state.last_audio_file, format="audio/mp3")
 
 else:
-    st.info("👋 Enter user info and click **Start Chat** to begin.")
+    st.info(" Enter user info and click **Start Chat** to begin.")
 
-# --- History Viewer ---
-with st.expander("📜 View Previous Chat History"):
+#  History Viewer 
+with st.expander(" View Previous Chat History"):
     history = fetch_user_history(st.session_state.user_id)
     if history:
         for i, entry in enumerate(history, 1):

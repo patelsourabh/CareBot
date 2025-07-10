@@ -7,9 +7,9 @@ llm = ChatOpenAI(model="gpt-4", temperature=0.5)
 def general_medical_agent(state: HealthBotState) -> HealthBotState:
     query = state["messages"][-1].content.strip()
     if not query:
-        # ❌ overwrite-free update into results:
+        
         outputs = dict(state.get("agent_outputs", {}))
-        outputs["general_medical"] = "⚠️ I didn't receive any clear question to respond to."
+        outputs["general_medical"] = "**I didn't receive any clear question to respond to."
         state["agent_outputs"] = outputs
 
         return state

@@ -17,12 +17,12 @@ def supervisor_node(state: HealthBotState) -> HealthBotState:
 
     # 4) Append summary
     full_response = state.get("response_message","").strip()
-    summary = "\n\n👨‍⚕️ **Supervisor Summary:**\n"
+    summary = "\n\n# **Supervisor Summary:**\n"
     summary += (
-        "🚨 Emergency alert was triggered due to symptom severity.\n"
-        if state.get("alert_sent") else "✅ No emergency alert was necessary.\n"
+        "# Emergency alert was triggered due to symptom severity.\n"
+        if state.get("alert_sent") else "# No emergency alert was necessary.\n"
     )
-    summary += "📝 The above response includes remedies, info, and suggestions."
+    summary += "# The above response includes remedies, info, and suggestions."
     state["response_message"] = f"{full_response}\n{summary}".strip()
     state["recommended_path"] = "compiled_response"
     return state

@@ -9,7 +9,7 @@ from shared.types import HealthBotState
 from db.postgres_adapter import get_recent_messages
 router = APIRouter()
 
-# Load the compiled LangGraph
+# Load the compiled graph
 graph = build_healthbot_workflow()
 
 # Input model
@@ -35,31 +35,31 @@ async def get_history(user_id: str):
 @router.post("/chat", response_model=ChatResponse)
 @router.post("/chat", response_model=ChatResponse)
 async def chat_with_bot(request: ChatRequest):
-    # ✅ Correctly initialized state with lists for Annotated[list, ...] fields
+    
     state: HealthBotState = {
-    "user_id": request.user_id,  # ✅ str, NOT list
+    "user_id": request.user_id,
     "messages": [HumanMessage(content=request.message)],
-    "symptoms": [],  # ✅ list (Annotated[List[str]])
-    "stress_level": "",  # ✅ string, NOT list
+    "symptoms": [], 
+    "stress_level": "", 
     "risk_score": 0.0,
     "response_message": "",
     "timestamp": datetime.utcnow().isoformat(),
     "location": request.location,
-    "suspected_diseases": [],  # ✅ list (Annotated[List[str]])
+    "suspected_diseases": [],  
     "alert_sent": False,
     "recommended_path": "",
     "_info_mode": None,
     "_search_topic": None,
-    "_search_results": [],  # ✅ list of dicts
-    "agent_outputs": {},  # ✅ dict
+    "_search_results": [],  
+    "agent_outputs": {},  
     "session_id": str(uuid4()),
-    "memory_context": []  # ✅ list of str
+    "memory_context": []  
     }
 
 
     final_state = graph.invoke(state)
 
-    print("🧠 Returning summary response 1:", final_state.get("agent_outputs", {}).get("final_summary", "None"))
+    print("Returning summary response 1:", final_state.get("agent_outputs", {}).get("final_summary", "None"))
 
     
 

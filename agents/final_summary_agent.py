@@ -6,21 +6,21 @@ llm = ChatOpenAI(model="gpt-4", temperature=0.5)
 
 def final_summary_agent(state: HealthBotState) -> HealthBotState:
     current_results = state.get("agent_outputs", {})
-    print("🧠 [final_summary_agent] incoming agent_outputs:", current_results.keys())
+    print("[final_summary_agent] incoming agent_outputs:", current_results.keys())
     memory = state.memory if hasattr(state, "memory") else []
 
-    # Format past memory
+    
     memory_text = "\n".join(
         f"- {entry.get('inputs', {}).get('message', '')} → {entry.get('results', {})}" 
         for entry in memory
     ) or "No past history."
 
-    # Format current results
+    
     current_text = "\n".join(
         f"- {k}: {v}" for k, v in current_results.items()
     ) or "No current results."
 
-    print("✅ Available results before summarizing:", state.get("agent_outputs", {}).keys())
+    print("**Available results before summarizing:", state.get("agent_outputs", {}).keys())
 
     prompt = prompt = f"""
 You are a medical assistant in a chatbot powered by a multi-agent system. Your role is to process the current results from called agents, integrate past memory to identify symptom patterns or prior improvements, and provide medically responsible suggestions based solely on the defined agents' outputs. The response should be friendly, informative, and personalized, referencing the user's history.
@@ -51,6 +51,6 @@ Reply with a point-wise, concise paragraph (120 - 200 words) using headings for 
 
     response = llm.invoke([HumanMessage(content=prompt)])
     state.setdefault("agent_outputs", {})["final_summary"] = response.content.strip()
-    print("✅ Final summary stored:", response.content.strip()[:300])
+    print("**Final summary stored:", response.content.strip()[:300])
 
     return state

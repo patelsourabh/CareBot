@@ -15,27 +15,27 @@ from agents.memory_writer_agent import memory_writer_agent
 from agents.emergency_alert_agent import emergency_alert_agent
 
 
-# 🔧 Init state if not present
+# Init state 
 def init_outputs(state: HealthBotState) -> HealthBotState:
     state.setdefault("agent_outputs", {})
     return state
 
 
-# 🧠 Intent routing logic
+# Intent routing logic
 def route_from_intent(state: HealthBotState) -> List[str]:
 
     intents = state.get("intents", [])
-    print("🧭 Routing based on intents:", intents)
+    print("# Routing based on intents:", intents)
 
     matched = []
     for intent in intents:
         intent = intent.strip().lower()
         if intent in ["home_remedy", "physical_relief", "info_search", "general_medical"]:
-            print(f"✅ Matched intent: {intent}")
+            print(f"# Matched intent: {intent}")
             matched.append(intent)
 
     if not matched:
-        print("⚠️ No valid intent matched. Defaulting to memory_reader.")
+        print("# No valid intent matched. Defaulting to memory_reader.")
         return ["memory_reader"]
     
     return matched
@@ -47,11 +47,11 @@ def route_from_intent(state: HealthBotState) -> List[str]:
 
 
 
-# 🧱 Build full workflow graph
+# workflow graph
 def build_healthbot_workflow():
     graph = StateGraph(HealthBotState)
 
-    # 🔹 All nodes
+    # All nodes
     graph.add_node("init_outputs", init_outputs)
     graph.add_node("extract_symptoms", symptom_extractor_agent)
     graph.add_node("emergency_alert", emergency_alert_agent)
@@ -67,14 +67,14 @@ def build_healthbot_workflow():
     graph.add_node("final_summary", final_summary_agent)
     graph.add_node("memory_writer", memory_writer_agent)
 
-    # 🔹 Workflow edges
+    # workflow
     graph.set_entry_point("init_outputs")
     graph.add_edge("init_outputs", "extract_symptoms")
     graph.add_edge("extract_symptoms", "emergency_alert")
     graph.add_edge("emergency_alert", "handle_db")
     graph.add_edge("handle_db", "intent_classifier")
 
-    # 🔀 Conditional branching from intent
+    # Conditional branching 
     graph.add_conditional_edges(
         "intent_classifier",
         route_from_intent,
@@ -87,20 +87,20 @@ def build_healthbot_workflow():
         }
     )
 
-    # ➡️ After intent handlers
+    
     graph.add_edge("home_remedy", "memory_reader")
     graph.add_edge("physical_relief", "memory_reader")
     graph.add_edge("info_search", "memory_reader")
     graph.add_edge("general_medical", "memory_reader")
 
-    # 🧠 Final summary + store to memory
+    # Final summary + store to memory
     graph.add_edge("memory_reader", "final_summary")
     graph.add_edge("final_summary", "memory_writer")
     graph.add_edge("memory_writer", END)
 
-    print("✅ Graph ready to compile")
-    print("📌 Nodes:", graph.nodes)
-    print("📌 Edges:", graph.edges)
+    print("# Graph ready to compile")
+    print("# Nodes:", graph.nodes)
+    print("# Edges:", graph.edges)
 
     compiled = graph.compile()
     return compiled
