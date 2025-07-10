@@ -1,14 +1,27 @@
-from workflows.workflow import build_healthbot_workflow
-from langchain_core.messages import HumanMessage
+#main.py
+# main.py
+from fastapi import FastAPI, Request
+from api.routes import router
+from fastapi.middleware.cors import CORSMiddleware
+from db.postgres_adapter import get_recent_messages
+from fastapi.middleware.cors import CORSMiddleware
+from db.postgres_adapter import get_message_history_ui
 
-if __name__ == "__main__":
-    workflow = build_healthbot_workflow()
+app = FastAPI(title="HealthBot API")
 
-    result = workflow.invoke({
-        "user_id": "user_xyz",
-        "location": "Indore",  # simulate GPS data
-        "messages": [HumanMessage(content="I'm having serious chest pain, what to do?.,suggest instant heart attack , suggest nearby hospital and medicine")],
-    })
+# CORS (Optional: if using a frontend)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or replace with specific domains
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    print("\n=== Final Response ===\n")
-    print(result["response_message"])
+@app.get("/history/{user_id}")
+def fetch_history(user_id: str):
+    messages = get_message_history_ui(user_id, limit=10)
+    return {"history": messages}
+
+# Include routes
+app.include_router(router)

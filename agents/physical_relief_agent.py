@@ -17,5 +17,11 @@ def physical_relief_agent(state: HealthBotState) -> HealthBotState:
     else:
         message = "🏃 No safe physical activities suggested for the symptoms."
 
-    state["response_message"] += f"\n\n{message}"
+    state["response_message"] = state.get("response_message", "") + f"\n\n{message}"
+
+     # ▶️ write physical_relief output into results
+    outputs = dict(state.get("agent_outputs", {}))
+    outputs["physical_relief"] = message
+    state["agent_outputs"] = outputs
+
     return state

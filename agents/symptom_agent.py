@@ -1,3 +1,4 @@
+#symptom_agent.py
 import json
 from datetime import datetime, timezone
 from langchain_openai import ChatOpenAI
@@ -34,7 +35,6 @@ def symptom_extractor_agent(state: HealthBotState) -> HealthBotState:
             "stress_level": "unknown",
             "risk_score": 0.0,
             "response_message": summary,
-            "timestamp": datetime.utcnow().isoformat()
         })
         # Avoid appending duplicate memory replies
         if not any(m.content == summary for m in state["messages"] if m.type == "ai"):
@@ -87,7 +87,17 @@ Respond ONLY in JSON format:
         }
 
     # Update state
-    state["symptoms"]        = parsed.get("symptoms", [])
+    existing = state.get("symptoms", [])
+    new = parsed.get("symptoms", [])
+    combined = existing + new
+    unique = []
+    seen = set()
+    for s in combined:
+        if s not in seen:
+            seen.add(s)
+            unique.append(s)
+    state["symptoms"] = unique
+
     state["stress_level"]    = parsed.get("stress_level", "unknown")
     state["risk_score"]      = parsed.get("risk_score", 0.1)
     state["response_message"] = parsed.get(
@@ -98,7 +108,7 @@ Respond ONLY in JSON format:
     new_ai_msg = result if isinstance(result, AIMessage) else AIMessage(content=result.content)
 
 # Retain only last 5 messages max
-    state["messages"] = [m for m in state["messages"] if m.type == "human"][-2:] + [new_ai_msg]
+    state["messages"].append(new_ai_msg)
+    print("📝 Full message log now:", [(m.type, m.content[:30]) for m in state["messages"]])
 
-    state["timestamp"] = datetime.now(timezone.utc).isoformat()
     return state
