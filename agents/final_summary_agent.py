@@ -1,9 +1,16 @@
-from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 from shared.types import HealthBotState
+from dotenv import load_dotenv
+import os
+from langchain_community.chat_models import ChatOpenAI
 
-llm = ChatOpenAI(model="gpt-4", temperature=0.5)
+load_dotenv()
 
+llm = ChatOpenAI(
+    model="mistralai/mistral-7b-instruct", 
+    openai_api_key=os.environ["OPENROUTER_API_KEY"],
+    openai_api_base="https://openrouter.ai/api/v1"
+)
 def final_summary_agent(state: HealthBotState) -> HealthBotState:
     current_results = state.get("agent_outputs", {})
     print("[final_summary_agent] incoming agent_outputs:", current_results.keys())
@@ -33,7 +40,7 @@ You are a medical assistant in a chatbot powered by a multi-agent system. Your r
 - if any information serach results are available, include them under the 'Info Search' heading(e.g., clinics).
 - if information not lies in home_remedy, info_search, or physical_relief, include it under the 'General Medical' heading. and include it in your summary.
 
-### Past Memory (latest 10 messages):
+### Past Memory (latest 5 messages):
 {memory_text}
 - Identify patterns in symptoms (e.g., 'chest pain mentioned 3 times this week' may suggest heart attack risk; 'dizziness reported multiple times' may indicate iron deficiency).
 - Reference prior improvements (e.g., 'your back pain improved last time') or recurring issues to provide context.

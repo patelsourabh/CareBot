@@ -1,17 +1,21 @@
 # agents/emergency_alert_agent.py
 
 from shared.types import HealthBotState
-from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from twilio.rest import Client
 from dotenv import load_dotenv
 import os
 from db.postgres_adapter import get_symptom_frequencies
 from datetime import datetime
+from langchain_community.chat_models import ChatOpenAI
 
 load_dotenv()
 
-llm = ChatOpenAI(model="gpt-4o", temperature=0.3)
+llm = ChatOpenAI(
+    model="mistralai/mistral-7b-instruct",  
+    openai_api_key=os.environ["OPENROUTER_API_KEY"],
+    openai_api_base="https://openrouter.ai/api/v1"
+)
 
 twilio_client = Client(
     os.getenv("TWILIO_ACCOUNT_SID"),

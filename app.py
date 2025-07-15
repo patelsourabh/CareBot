@@ -9,13 +9,13 @@ import time
 import numpy as np
 import sounddevice as sd
 import whisper
-from scipy.io.wavfile import write  # Only used once, imported here
+from scipy.io.wavfile import write 
 
-model = whisper.load_model("base")  # Load once globally
+model = whisper.load_model("base")  
 
 st.set_page_config(page_title="HealthBot AI", page_icon="🩺", layout="wide")
 
-#  Inject Custom CSS 
+#   CSS 
 st.markdown("""
     <style>
     html, body, [class*="css"] {
@@ -90,12 +90,9 @@ def speak_text(text):
 
 #  Chat History 
 def fetch_user_history(user_id):
-    try:
-        res = requests.get(f"http://localhost:8000/history/{user_id}")
-        if res.status_code == 200:
-            return res.json()["history"]
-    except Exception as e:
-        st.error(f" Error fetching history: {e}")
+    res = requests.get(f"http://localhost:8000/history/{user_id}")
+    if res.status_code == 200:
+        return res.json()["history"]
     return []
 
 #  Real-time voice loop 
@@ -202,22 +199,15 @@ else:
     st.info(" Enter user info and click **Start Chat** to begin.")
 
 #  History Viewer 
-with st.expander(" View Previous Chat History"):
+with st.expander("📜 View Previous Chat History"):
     history = fetch_user_history(st.session_state.user_id)
     if history:
         for i, entry in enumerate(history, 1):
-            if isinstance(entry, str):
-                try:
-                    entry = json.loads(entry)
-                except json.JSONDecodeError:
-                    continue
-            timestamp = entry.get("timestamp", "N/A")
-            symptoms = entry.get("symptoms", "N/A")
-            response = entry.get("response", "No response")
-
-            st.markdown(f"**{i}.** 🕒 *{timestamp}*")
-            st.markdown(f"- 🧍‍♂️ **Symptoms:** `{symptoms}`")
-            st.markdown(f"- 🤖 **Response:** {response}")
+            ts = entry["timestamp"]
+            st.markdown(f"**{i}.** 🕒 *{ts}*")
+            st.markdown(f"- 🧍‍♂️ **Symptoms:** `{entry['symptoms']}`")
+            st.markdown(f"- 🤖 **Response:** {entry['response']}")
             st.markdown("---")
     else:
         st.info("No history available.")
+

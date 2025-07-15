@@ -125,18 +125,19 @@ pip install -r requirements.txt
 Create a `.env` file in the root directory with:
 
 ```env
-OPENAI_API_KEY=your_openai_api_key_here
+TAVILY_API_KEY=your_tavily_api_key_here
 TWILIO_ACCOUNT_SID=your_twilio_sid
 TWILIO_AUTH_TOKEN=your_twilio_auth
-TWILIO_PHONE_NUMBER=+1415XXXXXXX
-ALERT_PHONE_NUMBER=+91XXXXXXXXXX
-DATABASE_URL=postgresql://username:password@host:port/database
+TWILIO_WHATSAPP_FROM=whatsapp:+14XXXXXXXXX
+EMERGENCY_CONTACT=whatsapp:+91706784XXXX
+POSTGRES_URL=postgresql://postgres:
+OPENROUTER_API_KEY=
+
 ```
 
 ### 5. Where to Get These:
-
-* **OpenAI API Key**: [https://platform.openai.com](https://platform.openai.com)
-* **PostgreSQL Cloud DB**: Use [Render](https://render.com), [Supabase](https://supabase.io), or [Railway](https://railway.app).
+* **OPEN ROUTER API**: from (https://openrouter.ai/), signup and get your api key from settings.
+* **PostgreSQL Cloud DB**: Use  [Supabase](https://supabase.io).
 * **Twilio Setup**:
 
   * Create account: [https://www.twilio.com/](https://www.twilio.com/)

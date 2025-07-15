@@ -19,7 +19,7 @@ def physical_relief_agent(state: HealthBotState) -> HealthBotState:
 
     state["response_message"] = state.get("response_message", "") + f"\n\n{message}"
 
-     #  physical_relief output into results
+     #  physical_relief output
     outputs = dict(state.get("agent_outputs", {}))
     outputs["physical_relief"] = message
     state["agent_outputs"] = outputs

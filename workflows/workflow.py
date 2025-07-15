@@ -83,7 +83,7 @@ def build_healthbot_workflow():
             "physical_relief": "physical_relief",
             "info_search": "info_search",
             "general_medical": "general_medical",
-            "memory_reader": "memory_reader",  # fallback
+            "memory_reader": "memory_reader", 
         }
     )
 
@@ -99,8 +99,6 @@ def build_healthbot_workflow():
     graph.add_edge("memory_writer", END)
 
     print("# Graph ready to compile")
-    print("# Nodes:", graph.nodes)
-    print("# Edges:", graph.edges)
 
     compiled = graph.compile()
     return compiled

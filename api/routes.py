@@ -6,7 +6,7 @@ from langchain_core.messages import HumanMessage
 from uuid import uuid4
 from datetime import datetime
 from shared.types import HealthBotState
-from db.postgres_adapter import get_recent_messages
+from db.postgres_adapter import get_message_history_ui
 router = APIRouter()
 
 # Load the compiled graph
@@ -30,9 +30,34 @@ class ChatResponse(BaseModel):
 
 @router.get("/history/{user_id}")
 async def get_history(user_id: str):
-    return {"history": get_recent_messages(user_id, limit=10)}    
+    
+     return {"history": get_message_history_ui(user_id, limit=10)}   
 
-@router.post("/chat", response_model=ChatResponse)
+
+@router.get("/debug/raw_history/{user_id}")
+async def debug_raw(user_id: str):
+    from db.postgres_adapter import SessionLocal, SymptomLog
+    session = SessionLocal()
+    rows = (
+        session
+        .query(SymptomLog)
+        .filter_by(user_id=user_id)
+        .order_by(SymptomLog.timestamp.asc())    
+        .all()
+    )
+    session.close()
+    return [
+        {
+            "id":      r.id,
+            "query":   r.query,
+            "symptoms":r.symptoms,
+            "ts":      r.timestamp.isoformat()
+        }
+        for r in rows
+    ]
+
+
+
 @router.post("/chat", response_model=ChatResponse)
 async def chat_with_bot(request: ChatRequest):
     
